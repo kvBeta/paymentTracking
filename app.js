@@ -5,6 +5,15 @@ let data = {
     expenses: []
 };
 
+const currencyFormatter = new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR'
+});
+
+function formatCurrency(amount) {
+    return currencyFormatter.format(amount);
+}
+
 function saveData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
@@ -64,7 +73,7 @@ function renderExpenses() {
     list.innerHTML = '';
     data.expenses.forEach((exp, index) => {
         const li = document.createElement('li');
-        li.textContent = `${exp.description} - $${exp.amount.toFixed(2)} paid by ${exp.payer}`;
+        li.textContent = `${exp.description} - ${formatCurrency(exp.amount)} paid by ${exp.payer}`;
         const rm = document.createElement('button');
         rm.textContent = 'Remove';
         rm.onclick = () => {
@@ -111,7 +120,7 @@ function renderSummary() {
         const debtor = debtors[i];
         const creditor = creditors[j];
         const amt = Math.min(debtor.bal, creditor.bal);
-        transactions.push(`${debtor.name} owes ${creditor.name} $${amt.toFixed(2)}`);
+        transactions.push(`${debtor.name} owes ${creditor.name} ${formatCurrency(amt)}`);
         debtor.bal -= amt;
         creditor.bal -= amt;
         if (debtor.bal < 0.01) i++;
@@ -155,7 +164,8 @@ function init() {
     document.getElementById('add-expense-form').onsubmit = e => {
         e.preventDefault();
         const desc = document.getElementById('expense-desc').value.trim();
-        const amount = parseFloat(document.getElementById('expense-amount').value);
+        const rawAmount = document.getElementById('expense-amount').value.replace(',', '.');
+        const amount = parseFloat(rawAmount);
         const payer = document.getElementById('expense-payer').value;
         const participants = Array.from(document.querySelectorAll('#participants-options input:checked')).map(cb=>cb.value);
         if (!desc || isNaN(amount) || amount<=0 || !payer || participants.length===0) return;
