@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Group Expense Tracker</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Group Expense Tracker</h1>
+    </header>
+
+    <main>
+        <section id="members-section">
+            <h2>Members</h2>
+            <ul id="member-list"></ul>
+            <form id="add-member-form">
+                <input type="text" id="member-name" placeholder="Add person" required>
+                <button type="submit">Add</button>
+            </form>
+        </section>
+
+        <section id="expenses-section">
+            <h2>Add Expense</h2>
+            <form id="add-expense-form">
+                <input type="text" id="expense-desc" placeholder="Description" required>
+                <input type="number" id="expense-amount" placeholder="Amount" min="0" step="0.01" required>
+                <label>Payer
+                    <select id="expense-payer"></select>
+                </label>
+                <fieldset id="participants-field">
+                    <legend>Participants</legend>
+                    <div id="participants-options"></div>
+                </fieldset>
+                <button type="submit">Add Expense</button>
+            </form>
+            <ul id="expense-list"></ul>
+        </section>
+
+        <section id="summary-section">
+            <h2>Summary</h2>
+            <ul id="summary-list"></ul>
+        </section>
+    </main>
+
+<script src="app.js"></script>
+</body>
+</html>
