@@ -3,8 +3,13 @@
 }
 
 body {
-    background: #fafafa;
+    background: #f5f5f5;
     padding: 1rem;
+    font-family: 'Roboto', sans-serif;
+}
+
+.card {
+    margin-bottom: 1rem;
 }
 
 #participants-options label {
