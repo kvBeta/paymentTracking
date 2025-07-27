@@ -21,9 +21,10 @@ function renderMembers() {
     list.innerHTML = '';
     data.members.forEach((name, index) => {
         const li = document.createElement('li');
-        li.textContent = name + ' ';
+        li.textContent = name;
         const rm = document.createElement('button');
         rm.textContent = 'Remove';
+        rm.className = 'remove-btn';
         rm.onclick = () => {
             data.members.splice(index,1);
             // Remove expenses involving this member
@@ -67,6 +68,7 @@ function renderExpenses() {
         li.textContent = `${exp.description} - $${exp.amount.toFixed(2)} paid by ${exp.payer}`;
         const rm = document.createElement('button');
         rm.textContent = 'Remove';
+        rm.className = 'remove-btn';
         rm.onclick = () => {
             data.expenses.splice(index,1);
             saveData();
