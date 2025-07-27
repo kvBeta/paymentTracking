@@ -30,9 +30,12 @@ function renderMembers() {
     list.innerHTML = '';
     data.members.forEach((name, index) => {
         const li = document.createElement('li');
-        li.textContent = name + ' ';
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.textContent = name;
         const rm = document.createElement('button');
-        rm.textContent = 'Remove';
+        rm.innerHTML = '<i class="bi bi-trash"></i>';
+        rm.className = 'btn btn-sm btn-outline-danger';
+        rm.title = 'Remove';
         rm.onclick = () => {
             data.members.splice(index,1);
             // Remove expenses involving this member
@@ -73,22 +76,30 @@ function renderExpenses() {
     list.innerHTML = '';
     data.expenses.forEach((exp, index) => {
         const li = document.createElement('li');
-        li.textContent = `${exp.description} - ${formatCurrency(exp.amount)} paid by ${exp.payer}`;
+        li.className = 'list-group-item d-flex justify-content-between align-items-start';
+
+        const info = document.createElement('div');
+        info.innerHTML = `<strong>${exp.description}</strong><br>
+            <small>${formatCurrency(exp.amount)} paid by ${exp.payer} – <span class="text-muted">${new Date(exp.time).toLocaleString()}</span></small>`;
         const rm = document.createElement('button');
-        rm.textContent = 'Remove';
+        rm.className = 'btn btn-sm btn-outline-danger';
+        rm.innerHTML = '<i class="bi bi-trash"></i>';
         rm.onclick = () => {
             data.expenses.splice(index,1);
             saveData();
             renderAll();
         };
+        li.appendChild(info);
         li.appendChild(rm);
         list.appendChild(li);
     });
 }
 
 function renderSummary() {
-    const summaryList = document.getElementById('summary-list');
-    summaryList.innerHTML = '';
+    const tbody = document.querySelector('#summary-table tbody');
+    const summaryText = document.getElementById('summary-text');
+    tbody.innerHTML = '';
+    summaryText.textContent = '';
     if (data.members.length === 0) return;
 
     const totals = {};
@@ -120,7 +131,7 @@ function renderSummary() {
         const debtor = debtors[i];
         const creditor = creditors[j];
         const amt = Math.min(debtor.bal, creditor.bal);
-        transactions.push(`${debtor.name} owes ${creditor.name} ${formatCurrency(amt)}`);
+        transactions.push({from: debtor.name, to: creditor.name, amount: amt});
         debtor.bal -= amt;
         creditor.bal -= amt;
         if (debtor.bal < 0.01) i++;
@@ -128,15 +139,19 @@ function renderSummary() {
     }
 
     if (transactions.length === 0) {
-        const li = document.createElement('li');
-        li.textContent = 'All settled!';
-        summaryList.appendChild(li);
+        const row = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 4;
+        td.textContent = 'All settled!';
+        row.appendChild(td);
+        tbody.appendChild(row);
     } else {
         transactions.forEach(t => {
-            const li = document.createElement('li');
-            li.textContent = t;
-            summaryList.appendChild(li);
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${t.from}</td><td class="text-center"><i class="bi bi-arrow-right"></i></td><td>${t.to}</td><td class="text-end">${formatCurrency(t.amount)}</td>`;
+            tbody.appendChild(tr);
         });
+        summaryText.textContent = transactions.map(t => `${t.from} should send ${formatCurrency(t.amount)} to ${t.to}`).join('. ') + '.';
     }
 }
 
@@ -169,11 +184,21 @@ function init() {
         const payer = document.getElementById('expense-payer').value;
         const participants = Array.from(document.querySelectorAll('#participants-options input:checked')).map(cb=>cb.value);
         if (!desc || isNaN(amount) || amount<=0 || !payer || participants.length===0) return;
-        data.expenses.push({description: desc, amount, payer, participants});
+        data.expenses.push({description: desc, amount, payer, participants, time: Date.now()});
         saveData();
         renderAll();
         document.getElementById('expense-desc').value = '';
         document.getElementById('expense-amount').value = '';
+        document.getElementById('expense-desc').focus();
+    };
+
+    document.getElementById('save-btn').onclick = saveData;
+    document.getElementById('clear-btn').onclick = () => {
+        if (confirm('Clear all data?')) {
+            localStorage.removeItem(STORAGE_KEY);
+            data = {members: [], expenses: []};
+            renderAll();
+        }
     };
 }
 
